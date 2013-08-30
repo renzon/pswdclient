@@ -1,20 +1,24 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
-from pswdclient.security import RevokeSecrets, RenewSecrets
+from pswdclient.manager import RenewSecrets
+from pswdclient.security import SignDctCookie, RetrieveDct
 
 
-def sign(dct):
+def sign_dct(name, dct):
     '''
     Returns a command with dict coded as a signer json
     '''
-    pass
+    return SignDctCookie(name,dct)
 
-def retrieve(signed):
+
+def retrieve_dct(name, signed, max_age=604800):
     '''
     Returns the dct on result contained on the signed string coded if it is valid.
-     The content can be invalid by someone trying to fake it or because its age.
+     The content can be invalid by someone trying to fake it or because it is above mas age.
+     max_age in seconds. Default seven days
     '''
-    pass
+    return RetrieveDct(name,signed,max_age)
+
 
 def renew():
     '''
@@ -24,6 +28,7 @@ def renew():
     Once the sign has expire date, the old secret will be changed to new one gradually
     '''
     return RenewSecrets()
+
 
 def revoke():
     '''

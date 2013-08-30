@@ -1,60 +1,39 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
+import time
 from base import GAETestCase
-from pswdclient.model import SignSecret
-from pswdclient.security import FindOrCreateSecrets, RenewSecrets, RevokeSecrets
+from pswdclient.security import SignDctCookie, RetrieveDct
 
 
-class TestSignSecret(GAETestCase):
-    def test_find_or_create(self):
-        # Secret creation
-        command=FindOrCreateSecrets()
-        command.execute()
-        sign_secrets= SignSecret.query().order(-SignSecret.creation).fetch()
-        self.assertEqual(1,len(sign_secrets))
+class SignTests(GAETestCase):
+    def test_sign_and_retrive(self):
+        dct={'a':'asdfsafdsdf','id':4}
+        name='somevalue'
+        sign=SignDctCookie(name, dct)
+        sign.execute()
+        self.assertIsNotNone(sign.result)
+        retrieve=RetrieveDct(name,sign.result,100)
+        retrieve.execute()
+        self.assertDictEqual(dct,retrieve.result)
 
-        # Last secret reuse
+    def test_expired(self):
+        dct={'a':'asdfsafdsdf','id':4}
+        name='somevalue'
+        sign=SignDctCookie(name, dct)
+        sign.execute()
+        self.assertIsNotNone(sign.result)
+        retrieve=RetrieveDct(name,sign.result,1)
+        time.sleep(2)
+        retrieve.execute()
+        self.assertIsNone(retrieve.result)
 
-        command2=FindOrCreateSecrets()
-        command2.execute()
-        sign_secrets= SignSecret.query().order(-SignSecret.creation).fetch()
-        self.assertEqual(1,len(sign_secrets))
-        self.assertIsNotNone(command.result)
-        self.assertEqual(command.result,command2.result)
-
-class TestRenewSecrets(GAETestCase):
-    def test_simple_without_invalidation(self):
-        find_command=FindOrCreateSecrets()
-        find_command.execute()
-        RenewSecrets().execute()
-        find_after_renew=FindOrCreateSecrets()
-        find_after_renew.execute()
-        self.assertEqual(2,len(find_after_renew.result))
-        self.assertEqual(find_command.result[0],find_after_renew[1])
-        RenewSecrets().execute()
-        find_after_renew2=FindOrCreateSecrets()
-        find_after_renew2.execute()
-        self.assertEqual(2,len(find_after_renew2.result))
-        self.assertEqual(find_after_renew.result[0],find_after_renew[1])
-        self.assertNotEqual(find_after_renew.result[1],find_after_renew[0])
-
-    def test_simple_with_invalidation(self):
-        find_command=FindOrCreateSecrets()
-        find_command.execute()
-        RevokeSecrets(True).execute()
-        find_after_renew=FindOrCreateSecrets()
-        find_after_renew.execute()
-        self.assertEqual(2,len(find_after_renew.result))
-        self.assertNotEqual(find_command.result[0],find_after_renew[1])
-        RevokeSecrets(True).execute()
-        find_after_renew2=FindOrCreateSecrets()
-        find_after_renew2.execute()
-        self.assertEqual(2,len(find_after_renew2.result))
-        self.assertNotEqual(find_after_renew.result[1],find_after_renew[0])
-        self.assertNotEqual(find_after_renew.result[0],find_after_renew[0])
-        self.assertNotEqual(find_after_renew.result[0],find_after_renew[1])
-        self.assertNotEqual(find_after_renew.result[1],find_after_renew[1])
-
-
-
+    def test_modified_cookie(self):
+        dct={'a':'asdfsafdsdf','id':4}
+        name='somevalue'
+        sign=SignDctCookie(name, dct)
+        sign.execute()
+        self.assertIsNotNone(sign.result)
+        retrieve=RetrieveDct(name,sign.result[1:],100)
+        retrieve.execute()
+        self.assertIsNone(retrieve.result)
 
