@@ -2,7 +2,7 @@
 from __future__ import absolute_import, unicode_literals
 from google.appengine.api import memcache
 from os import urandom
-from gaebusiness.business import Command
+from gaebusiness.business import Command, CommandList
 from pswdclient.model import SignSecret
 
 _SIGN_CACHE_KEY = SignSecret.__name__
@@ -36,32 +36,30 @@ class FindOrCreateSecrets(Command):
                 secret = _generate_secret()
                 self.result = [secret]
                 self._to_commit = [SignSecret(secret=secret)]
-            memcache.add(_SIGN_CACHE_KEY, self.result)
+            memcache.set(_SIGN_CACHE_KEY, self.result)
 
     def commit(self):
         return self._to_commit
 
 
-class RenewSecrets(Command):
-    def set_up(self):
+class RenewSecrets(CommandList):
+    def __init__(self):
         self._find_secret = FindOrCreateSecrets()
-        self._find_secret.set_up()
+        super(RenewSecrets, self).__init__([self._find_secret])
 
-    def do_business(self, stop_on_error=False):
-        self._find_secret.do_business()
 
     def commit(self):
         secret = _generate_secret()
-        to_commit = [SignSecret(secret=secret)]
-        memcache.add(_SIGN_CACHE_KEY, [self._find_secret.result, secret])
-        to_commit.extend(self._find_secret.commit())
+        memcache.set(_SIGN_CACHE_KEY, [secret, self._find_secret.result[0]])
+        to_commit = super(RenewSecrets, self).commit()
+        to_commit.append(SignSecret(secret=secret))
         return to_commit
 
 
 class RevokeSecrets(Command):
     def do_business(self, stop_on_error=False):
-        self._secrets=[_generate_secret(),_generate_secret()]
-        memcache.add(_SIGN_CACHE_KEY,self._secrets)
+        self._secrets = [_generate_secret(), _generate_secret()]
+        memcache.set(_SIGN_CACHE_KEY, self._secrets)
 
     def commit(self):
         return [SignSecret(secret=s) for s in self._secrets]
