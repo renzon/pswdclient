@@ -5,7 +5,7 @@ from gaegraph.model import Node
 
 
 class SignSecret(Node):
-    secret=ndb.StringProperty(required=True)
+    secret = ndb.StringProperty(required=True)
 
     @classmethod
     def find_last(cls):
@@ -13,3 +13,11 @@ class SignSecret(Node):
         Returns the SignSecret ordered by desc creation
         '''
         return cls.query().order(-SignSecret.creation)
+
+
+class LoginEmailSent(Node):
+    ticket = ndb.StringProperty(required=True)
+
+    @classmethod
+    def find_by_ticket(cls, ticket):
+        return cls.query(cls.ticket==ticket)
