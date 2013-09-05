@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
-from pswdclient.manager import RenewSecrets
+from pswdclient.manager import RenewSecrets, RevokeSecrets
 from pswdclient.pswdless import SendLoginEmail, LogUserIn
-from pswdclient.security import SignDct, RetrieveDct
+from pswdclient.security import SignDct, RetrieveDct, RetrieveUserDetail
 
 
-def logged_user(request, cookie_name='user'):
+def logged_user(request, cookie_name='user',max_age=604800):
     '''
     Extract the user dict data from cookie or None if the data is invalid.
     Returns a command containing the user data ons its result attribute
     '''
-    pass
+    return RetrieveUserDetail(request, cookie_name='user',max_age=604800)
 
 
 def log_user_in(app_id, token, ticket, response, cookie_name='user',
@@ -62,4 +62,4 @@ def revoke():
     Works like renew, but it invalidates the last secret so content signed with it are not allowed
     Use this when the secret is compromised
     '''
-    return RenewSecrets()
+    return RevokeSecrets()

@@ -2,7 +2,8 @@
 from __future__ import absolute_import, unicode_literals
 import time
 from base import GAETestCase
-from pswdclient.security import SignDct, RetrieveDct
+from mock import Mock
+from pswdclient.security import SignDct, RetrieveDct, RetrieveUserDetail
 
 
 class SignTests(GAETestCase):
@@ -36,4 +37,14 @@ class SignTests(GAETestCase):
         retrieve = RetrieveDct(name, sign.result[1:], 100)
         retrieve.execute()
         self.assertIsNone(retrieve.result)
+
+    def test_retrieve_user_detail(self):
+        user_detail = {'email': 'foo@bar.com', 'id': '4'}
+        sign_cmd=SignDct('user',user_detail)
+        sign_cmd.execute()
+        request=Mock()
+        request.cookies.get=Mock(return_value=sign_cmd.result)
+        retrieve_cmd=RetrieveUserDetail(request,'user')
+        retrieve_cmd.execute()
+        self.assertDictEqual(user_detail,retrieve_cmd.result)
 

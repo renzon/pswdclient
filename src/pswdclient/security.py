@@ -38,3 +38,14 @@ class RetrieveDct(CommandList):
         if data:
             self.result = json.loads(data)
 
+
+class RetrieveUserDetail(CommandList):
+    def __init__(self,request,cookie_name='user',max_age=604800):
+        signed=request.cookies.get(cookie_name)
+        self._retrive_dct=RetrieveDct(cookie_name,signed,max_age)
+        super(RetrieveUserDetail,self).__init__([self._retrive_dct])
+
+    def do_business(self, stop_on_error=False):
+        super(RetrieveUserDetail,self).do_business(stop_on_error)
+        self.result=self._retrive_dct.result
+
