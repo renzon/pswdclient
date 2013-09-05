@@ -1,14 +1,40 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
 from pswdclient.manager import RenewSecrets
-from pswdclient.security import SignDctCookie, RetrieveDct
+from pswdclient.pswdless import SendLoginEmail, LogUserIn
+from pswdclient.security import SignDct, RetrieveDct
+
+
+def logged_user(request, cookie_name='user'):
+    '''
+    Extract the user dict data from cookie or None if the data is invalid.
+    Returns a command containing the user data ons its result attribute
+    '''
+    pass
+
+
+def log_user_in(app_id, token, ticket, response, cookie_name='user',
+                url_detail='https://pswdless.appspot.com/rest/detail'):
+    '''
+    Log the user in setting the user data dictionary in cookie
+    Returns a command containing the user data dict on its result attribute or None in a invalid cenario
+    '''
+    return LogUserIn(app_id, token, ticket, response, cookie_name, url_detail)
+
+
+def send_login_email(self, app_id, token, hook, email=None, user_id=None, lang="en_US",
+                     url_login='https://pswdless.appspot.com/rest/login'):
+    '''
+    Contact password-less server to send user a email containing the login link
+    '''
+    return SendLoginEmail(self, app_id, token, hook, email, user_id, lang, url_login)
 
 
 def sign_dct(name, dct):
     '''
     Returns a command with dict coded as a signer json
     '''
-    return SignDctCookie(name,dct)
+    return SignDct(name, dct)
 
 
 def retrieve_dct(name, signed, max_age=604800):
@@ -17,7 +43,7 @@ def retrieve_dct(name, signed, max_age=604800):
      The content can be invalid by someone trying to fake it or because it is above mas age.
      max_age in seconds. Default seven days
     '''
-    return RetrieveDct(name,signed,max_age)
+    return RetrieveDct(name, signed, max_age)
 
 
 def renew():

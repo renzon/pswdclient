@@ -15,9 +15,9 @@ class SignSecret(Node):
         return cls.query().order(-SignSecret.creation)
 
 
-class LoginEmailSent(Node):
+class LoginEmailSentCertified(Node):
     ticket = ndb.StringProperty(required=True)
 
     @classmethod
     def find_by_ticket(cls, ticket):
-        return cls.query(cls.ticket==ticket)
+        return cls.query(cls.ticket == ticket)

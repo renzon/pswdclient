@@ -8,15 +8,15 @@ from gaebusiness.business import CommandList
 from pswdclient.manager import FindOrCreateSecrets
 
 
-class SignDctCookie(CommandList):
+class SignDct(CommandList):
     def __init__(self, name, dct):
         self.name = name
         self.dct = dct
         self._find_secret = FindOrCreateSecrets()
-        super(SignDctCookie, self).__init__([self._find_secret])
+        super(SignDct, self).__init__([self._find_secret])
 
     def do_business(self, stop_on_error=False):
-        super(SignDctCookie, self).do_business(stop_on_error)
+        super(SignDct, self).do_business(stop_on_error)
         secret = self._find_secret.result
         value = json.dumps(self.dct)
         serializer = securecookie.SecureCookieSerializer(str(secret))
@@ -37,7 +37,4 @@ class RetrieveDct(CommandList):
         data = serializer.deserialize(self.name, self.signed, self.max_age)
         if data:
             self.result = json.loads(data)
-
-
-
 
