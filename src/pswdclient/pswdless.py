@@ -103,6 +103,6 @@ class LogUserIn(CommandList):
             cmd.execute()
             self.result = self.fetch_user_detail.result
             self._signed = cmd.result # for testing purpose
-            self._response.set_cookie(self._cookie_name, cmd.result)
+            self._response.set_cookie(self._cookie_name, cmd.result, httponly=True)
 
 
