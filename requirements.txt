@@ -1,10 +1,6 @@
 argparse==1.2.1
 gaebusiness==2.1.1
-gaegraph==1.2.1
+gaegraph==2.0.0
 mock==1.0.1
 wsgiref==0.1.2
-argparse==1.2.1
-gaebusiness==2.1.1
-gaegraph==1.2.1
-mock==1.0.1
-wsgiref==0.1.2
+
