@@ -5,12 +5,12 @@ from pswdclient.pswdless import SendLoginEmail, LogUserIn
 from pswdclient.security import SignDct, RetrieveDct, RetrieveUserDetail
 
 
-def logged_user(request, cookie_name='user',max_age=604800):
+def logged_user(request, cookie_name='user', max_age=604800):
     '''
     Extract the user dict data from cookie or None if the data is invalid.
     Returns a command containing the user data ons its result attribute
     '''
-    return RetrieveUserDetail(request, cookie_name='user',max_age=604800)
+    return RetrieveUserDetail(request, cookie_name='user', max_age=604800)
 
 
 def log_user_in(app_id, token, ticket, response, cookie_name='user',
@@ -22,12 +22,12 @@ def log_user_in(app_id, token, ticket, response, cookie_name='user',
     return LogUserIn(app_id, token, ticket, response, cookie_name, url_detail)
 
 
-def send_login_email(self, app_id, token, hook, email=None, user_id=None, lang="en_US",
+def send_login_email(app_id, token, hook, email=None, user_id=None, lang="en_US",
                      url_login='https://pswdless.appspot.com/rest/login'):
     '''
     Contact password-less server to send user a email containing the login link
     '''
-    return SendLoginEmail(self, app_id, token, hook, email, user_id, lang, url_login)
+    return SendLoginEmail(app_id, token, hook, email, user_id, lang, url_login)
 
 
 def sign_dct(name, dct):

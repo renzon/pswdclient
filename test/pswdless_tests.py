@@ -7,7 +7,7 @@ from base import GAETestCase
 from mock import Mock
 from pswdclient.model import LoginEmailSentCertified
 from pswdclient.pswdless import SendLoginEmail, CertifyLoginWasSent, FetchUserDetail, LogUserIn
-from pswdclient import pswdless
+from pswdclient import pswdless, facade
 
 
 class SendLoginEmailTests(GAETestCase):
@@ -26,7 +26,7 @@ class SendLoginEmailTests(GAETestCase):
         send_login_params = {'url_login': url}
         send_login_params.update(post_params)
 
-        send_login = SendLoginEmail(**send_login_params)
+        send_login = facade.send_login_email(**send_login_params)
         send_login.execute()
         self.assertDictEqual({'ticket': "123456"}, send_login.result)
         les_model = LoginEmailSentCertified.find_by_ticket("123456").get()
