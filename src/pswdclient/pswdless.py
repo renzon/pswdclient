@@ -30,7 +30,7 @@ class SendLoginEmail(Command):
         self._url = url_login
 
     def set_up(self):
-        self._rpc = urlfetch.create_rpc()
+        self._rpc = urlfetch.create_rpc(deadline=40)
         urlfetch.make_fetch_call(self._rpc, self._url, self._post_data, method=urlfetch.POST, validate_certificate=True)
 
     def do_business(self, stop_on_error=False):
@@ -76,7 +76,7 @@ class FetchUserDetail(Command):
         self._url = url_detail
 
     def set_up(self):
-        self._rpc = urlfetch.create_rpc()
+        self._rpc = urlfetch.create_rpc(deadline=40)
         urlfetch.make_fetch_call(self._rpc, self._url, self._post_data, method=urlfetch.POST, validate_certificate=True)
 
     def do_business(self, stop_on_error=False):
