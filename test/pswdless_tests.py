@@ -120,4 +120,10 @@ class LogUserInTests(GAETestCase):
         self.assertIsNone(LoginEmailSentCertified.find_by_ticket(valid_ticket).get())
         response.set_cookie.assert_called_once_with('user', cmd._signed, httponly=True)
 
+class LogUserOutTests(unittest.TestCase):
+    def test_success(self):
+        resp=Mock()
+        cmd=facade.log_user_out(resp,'user')
+        cmd.execute()
+        resp.delete_cookie.assert_called_once_with('user')
 

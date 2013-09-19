@@ -106,3 +106,11 @@ class LogUserIn(CommandList):
             self._response.set_cookie(self._cookie_name, cmd.result, httponly=True)
 
 
+class LogUserOut(Command):
+    def __init__(self, response, cookie_name, **kwargs):
+        super(LogUserOut, self).__init__(response=response, cookie_name=cookie_name, **kwargs)
+
+    def do_business(self, stop_on_error=True):
+        self.response.delete_cookie(self.cookie_name)
+
+
