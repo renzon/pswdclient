@@ -9,11 +9,11 @@ from pswdclient.manager import FindOrCreateSecrets
 
 
 class SignDct(CommandList):
-    def __init__(self, name, dct):
+    def __init__(self, name, dct,**kwargs):
         self.name = name
         self.dct = dct
         self._find_secret = FindOrCreateSecrets()
-        super(SignDct, self).__init__([self._find_secret])
+        super(SignDct, self).__init__([self._find_secret],**kwargs)
 
     def do_business(self, stop_on_error=False):
         super(SignDct, self).do_business(stop_on_error)

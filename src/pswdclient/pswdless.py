@@ -88,22 +88,40 @@ class FetchUserDetail(Command):
             self.add_error('msg', result.content)
 
 
-class LogUserIn(CommandList):
+class FetchUserWithValidation(CommandList):
+    def __init__(self, app_id, token, ticket, url_detail):
+        self.certify_login_was_sent = CertifyLoginWasSent(ticket)
+        self.fetch_user_detail = FetchUserDetail(app_id, token, ticket, url_detail)
+        super(FetchUserWithValidation, self).__init__([self.certify_login_was_sent, self.fetch_user_detail])
+
+    def do_business(self, stop_on_error=True):
+        super(FetchUserWithValidation, self).do_business(stop_on_error)
+        if not self.certify_login_was_sent.errors:
+            self.result = self.fetch_user_detail.result
+
+
+class SetUserOnCookie(SignDct):
+    def __init__(self, user, response, cookie_name):
+        super(SetUserOnCookie, self).__init__(cookie_name, user, response=response)
+
+    def do_business(self, stop_on_error=True):
+        super(SetUserOnCookie, self).do_business(stop_on_error)
+        if not self.errors:
+            self.response.set_cookie(self.name, self.result, httponly=True)
+
+
+class LogUserIn(FetchUserWithValidation):
     def __init__(self, app_id, token, ticket, response, cookie_name, url_detail):
         self._response = response
         self._cookie_name = cookie_name
-        self.certify_login_was_sent = CertifyLoginWasSent(ticket)
-        self.fetch_user_detail = FetchUserDetail(app_id, token, ticket, url_detail)
-        super(LogUserIn, self).__init__([self.certify_login_was_sent, self.fetch_user_detail])
+        super(LogUserIn, self).__init__(app_id, token, ticket, url_detail)
 
     def do_business(self, stop_on_error=True):
         super(LogUserIn, self).do_business(stop_on_error)
         if not self.certify_login_was_sent.errors:
-            cmd = SignDct(self._cookie_name, self.fetch_user_detail.result)
+            cmd = SetUserOnCookie(self.result,self._response, self._cookie_name)
             cmd.execute()
-            self.result = self.fetch_user_detail.result
             self._signed = cmd.result # for testing purpose
-            self._response.set_cookie(self._cookie_name, cmd.result, httponly=True)
 
 
 class LogUserOut(Command):

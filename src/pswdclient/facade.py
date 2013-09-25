@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
 from pswdclient.manager import RenewSecrets, RevokeSecrets
-from pswdclient.pswdless import SendLoginEmail, LogUserIn, LogUserOut
+from pswdclient.pswdless import SendLoginEmail, LogUserIn, LogUserOut, FetchUserDetail, FetchUserWithValidation, SetUserOnCookie
 from pswdclient.security import SignDct, RetrieveDct, RetrieveUserDetail
 
 
@@ -18,7 +18,13 @@ def log_user_out(response, cookie_name='user'):
     Log the user out removing the user data dictionary from cookie
     Returns a command containing the user data dict on its result attribute or None if user is already logged out
     '''
-    return LogUserOut(response,cookie_name)
+    return LogUserOut(response, cookie_name)
+
+def set_user_on_cookie(user,response, cookie_name='user'):
+    '''
+    Set the data provided in user in json signed on a cookie
+    '''
+    return SetUserOnCookie(user,response,cookie_name)
 
 
 def log_user_in(app_id, token, ticket, response, cookie_name='user',
@@ -28,6 +34,13 @@ def log_user_in(app_id, token, ticket, response, cookie_name='user',
     Returns a command that execute the logic
     '''
     return LogUserIn(app_id, token, ticket, response, cookie_name, url_detail)
+
+
+def fetch_user(app_id, token, ticket, url_detail='https://pswdless.appspot.com/rest/detail'):
+    '''
+    Fetch the user deatil from Passwordless
+    '''
+    return FetchUserWithValidation(app_id, token, ticket, url_detail)
 
 
 def send_login_email(app_id, token, hook, email=None, user_id=None, lang="en_US",
